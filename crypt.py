@@ -1,23 +1,25 @@
 from cryptography.fernet import Fernet
 import base64, hashlib
-from termcolor import colored
 import os, sys
+import time
 # from os import listdir
 # from os.path import isfile, join
 from os import walk
 
 def encrypt(key, filename):
-	outFile = os.path.join(os.path.dirname(filename), "(encrypted)" + os.path.basename(filename))
+	outFile = os.path.join(os.path.dirname(filename), "__(encrypted)__" + os.path.basename(filename))
 	
 	encryptor = Fernet(key)
-	
-	with open(filename, "rb") as infile:
-		with open(outFile, "wb") as outfile:
-			data = infile.read()
-			outfile.write(encryptor.encrypt(data))
+
+	exist = os.path.exists(filename)
+	if exist:
+		with open(filename, "rb") as infile:
+			with open(outFile, "wb") as outfile:
+				data = infile.read()
+				outfile.write(encryptor.encrypt(data))
 
 def decrypt(key, filename):
-	outFile = os.path.join(os.path.dirname(filename), os.path.basename(filename[17:]))
+	outFile = os.path.join(os.path.dirname(filename), os.path.basename(filename.replace("__(encrypted)__", "")))
 	decryptor = Fernet(key)
 
 	with open(filename, "rb") as infile:
@@ -26,13 +28,13 @@ def decrypt(key, filename):
 			outfile.write(decryptor.decrypt(data))
 
 def display_info():
-	print(colored('\r\n¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦','green'))
-	print(colored('¦','green'), '		 Creado por: Alberto Mier	               ' , colored('¦','green'))
-	print(colored('¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦','green'))
+	print('\r\n¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦')
+	print('¦', '		 Creado por: Alberto Mier	               ' , '¦')
+	print('¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦')
 
 def allfiles():
 	allFiles = []
-	for (dirpath, dirnames, filenames) in walk("\DATA"):
+	for (dirpath, dirnames, filenames) in walk("CryptoFile/DATA"):
 		for file in filenames:
 			allFiles.append(os.path.join(dirpath, file))
 
@@ -40,18 +42,6 @@ def allfiles():
 	
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
@@ -61,7 +51,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         print()
 
 display_info()
-choice = input("Do you want to (E)ncrypt or (D)ecrypt? ")
+choice = input("¿Quieres (E)ncriptar o (D)esencriptar?\r\n")
 #password = input("Enter the password: ")
 my_password = 'mypassword'.encode()
 key = hashlib.md5(my_password).hexdigest()
@@ -71,30 +61,38 @@ encFiles = allfiles()
 
 if choice == "E":
 	a = 0
-	print(f"Encriptando archivos")
 	l = len(encFiles)
-	printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
-	for Tfiles in encFiles:	
-		if os.path.basename(Tfiles).startswith("(encrypted)"):
-			pass
+	if l == 0 :
+		print("No hay archivos para encriptar")
+	else:		
+		print(f"Encriptando {l} archivos")
+		printProgressBar(0, l, prefix = 'Progreso:', suffix = 'Completado', length = 50)
+		for Tfiles in encFiles:	
+			if os.path.basename(Tfiles).startswith("__(encrypted)__"):
+				pass
 
-		elif Tfiles == os.path.join(os.getcwd(), sys.argv[0]):
-			pass 
-		else:
-			encrypt(key_64, str(Tfiles))
-			os.remove(Tfiles)
-		a = a+1
-		printProgressBar(a, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+			elif Tfiles == os.path.join(os.getcwd(), sys.argv[0]):
+				pass 
+			else:
+				encrypt(key_64, str(Tfiles))
+				exist = os.path.exists(str(Tfiles))
+				if exist:
+					os.remove(Tfiles)
+
+			a = a+1
+			time.sleep(0.1)
+			printProgressBar(a, l, prefix = 'Progreso:', suffix = 'Completado', length = 50)
 
 
 elif choice == "D":
 	a = 0
-	print(f"Desencriptando archivos")
 	l = len(encFiles)
-	printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+	print(f"Desencriptando {l} archivos")
+	printProgressBar(0, l, prefix = 'Progreso:', suffix = 'Completado', length = 50)
 	for Tfiles in encFiles:
-		if os.path.basename(Tfiles).startswith("(encrypted)"):
+		if os.path.basename(Tfiles).startswith("__(encrypted)__"):
 			decrypt(key_64, str(Tfiles))
 			os.remove(Tfiles)
 		a = a+1
-		printProgressBar(a, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+		time.sleep(0.1)
+		printProgressBar(a, l, prefix = 'Progreso:', suffix = 'Completado', length = 50)
