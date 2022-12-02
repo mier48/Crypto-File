@@ -1,14 +1,11 @@
 from cryptography.fernet import Fernet
+from os import walk
 import base64, hashlib
 import os, sys
 import time
-# from os import listdir
-# from os.path import isfile, join
-from os import walk
 
 def encrypt(key, filename):
 	outFile = os.path.join(os.path.dirname(filename), "__(encrypted)__" + os.path.basename(filename))
-	
 	encryptor = Fernet(key)
 
 	exist = os.path.exists(filename)
@@ -34,7 +31,7 @@ def display_info():
 
 def allfiles():
 	allFiles = []
-	for (dirpath, dirnames, filenames) in walk("CryptoFile/DATA"):
+	for (dirpath, dirnames, filenames) in walk("\DATA"):
 		for file in filenames:
 			allFiles.append(os.path.join(dirpath, file))
 
@@ -52,8 +49,8 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
 
 display_info()
 choice = input("¿Quieres (E)ncriptar o (D)esencriptar?\r\n")
-#password = input("Enter the password: ")
-my_password = 'mypassword'.encode()
+password = input("Enter the password: ")
+my_password = password.encode()
 key = hashlib.md5(my_password).hexdigest()
 key_64 = base64.urlsafe_b64encode(key.encode("utf-8"))
 
