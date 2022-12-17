@@ -13,4 +13,4 @@ Script for encryp/decrypt files
 
 ## Built with 🛠️
 
-* [Python] (https://www.python.org/)
+* [Python](https://www.python.org/)
