@@ -1,4 +1,4 @@
-# Cryto File
+# Crypto File
 
 Script for encryp/decrypt files
 
